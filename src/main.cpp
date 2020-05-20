@@ -6,10 +6,14 @@
 #include "openvr.h"
 
 #include "openbeat/application.hpp"
+#include "openbeat/beatsaber.hpp"
 
 int main() {
+	std::cout << "Hello WOrld!" << std::endl;
 	openbeat::Application app;
 	app.Init();
+	
+	std::cout << GetBeatSaberLocation().size() << std::endl;
 
 	return 0;
 }
