@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
-#include "openvr.h"
+
+#include <engine/engine.hpp>
 
 namespace openbeat {
 class Application {
@@ -12,8 +13,6 @@ public:
 };
 
 void Application::Init() {
-	std::cout << "Running Init" << std::endl;
-	vr::EVRInitError eError = vr::VRInitError_None;
-	auto m_pHMD = vr::VR_Init( &eError, vr::VRApplication_Scene );
+	
 }
 }// End Namespace

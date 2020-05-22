@@ -1,19 +1,20 @@
-#include "AL/al.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <constants/screen_size.hpp>
+#include <engine/engine.hpp>
 
-#include "openvr.h"
-
-#include "openbeat/application.hpp"
-#include "openbeat/beatsaber.hpp"
+#include "openbeat/openbeat.hpp"
 
 int main() {
-	std::cout << "Hello WOrld!" << std::endl;
-	openbeat::Application app;
-	app.Init();
-	
-	std::cout << GetBeatSaberLocation().size() << std::endl;
+#if DEBUG
+	std::cout << "Starting Debug" << std::endl;
+#endif
+
+	const ScreenSize size { 800, 600 };
+	const std::string root_path = "D:/SteamLibrary/steamapps/common/Beat Saber/";
+
+	const auto open_beat_inst = std::make_shared<OpenBeat>(size, root_path);
+	Engine e{ open_beat_inst };
+
+	e.run();
 
 	return 0;
 }

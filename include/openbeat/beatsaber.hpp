@@ -1,13 +1,11 @@
 #pragma once
 
-#include <fstream>
-#include <sstream>
-
-
 #include <engine/engine.hpp>
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 
 enum class Difficulty { EASY = 0, NORMAL, HARD, EXPERT, EXPERT_PLUS };
 enum class NoteType { LEFT = 0, RIGHT };
@@ -114,35 +112,35 @@ bool supportedAudioTypes(const std::filesystem::path& filename) {
 	return false;
 }
 
-std::vector<BeatSaberSong> ParseBeatSaberLevels(const std::string& levelsPath) {
-	std::vector<BeatSaberSong> out;
-	for (const auto& p : std::filesystem::directory_iterator(levelsPath)) {
+std::function<BeatSaberSong(const std::string& p)> getBeatSaberFunc() {
+	return [&](const std::string& p) {
 		// Find Levels
 		BeatSaberSong song;
-		std::cout << "-- Processing Song: " << p.path() << std::endl;
-		
+#if DEBUG
+		std::cout << "-- Processing Song: " << p << std::endl;
+#endif
 		// Find Info
-		const auto info_file = p.path().string() + "/info.dat";
+		const auto info_file = p + "/info.dat";
 		if (std::filesystem::exists(info_file)) {
 			// Read in the info file
 			std::ifstream i(info_file);
 			using json = nlohmann::json;
 			json info;
 			i >> info;
-			
+
 			// Extract Song Info
 			song.info.songName = info["_songName"];
 			song.info.AuthorName = info["_songAuthorName"];
 			song.info.levelAuthorName = info["_levelAuthorName"];
 			song.info.beatsPerMinute = info["_beatsPerMinute"].get<int>();
 			song.info.songTimeOffset = info["_songTimeOffset"].get<int>();
-			song.info.songFilename = p.path().string() + "/" + info["_songFilename"].get<std::string>();
+			song.info.songFilename = p + "/" + info["_songFilename"].get<std::string>();
 			song.info.coverImageFilename = info["_coverImageFilename"];
 			song.info.environmentName = info["_environmentName"];
 
 			song.info.previewStartTime = info["_previewStartTime"].get<double>();
 			song.info.previewDuration = info["_previewDuration"].get<double>();
-			
+
 			// Extract each level
 			for (const auto& [_, difficultySets] : info["_difficultyBeatmapSets"].items()) {
 				for (const auto& [_, difficulty] : difficultySets["_difficultyBeatmaps"].items()) {
@@ -151,7 +149,7 @@ std::vector<BeatSaberSong> ParseBeatSaberLevels(const std::string& levelsPath) {
 					const int rank = difficulty["_difficultyRank"].get<int>();
 					const int noteJumpMovementSpeed = difficulty["_noteJumpMovementSpeed"].get<int>();
 					const int noteJumpStartBeatOffset = difficulty["_noteJumpStartBeatOffset"].get<int>();
-					
+
 					Difficulty parsed_difficulty;
 					if (raw_difficulty == "Easy") {
 						parsed_difficulty = Difficulty::EASY;
@@ -164,26 +162,19 @@ std::vector<BeatSaberSong> ParseBeatSaberLevels(const std::string& levelsPath) {
 					} else if (raw_difficulty == "ExpertPlus") {
 						parsed_difficulty = Difficulty::EXPERT_PLUS;
 					} else {
-						std::cout << "Unknown Difficulty: " << raw_difficulty << std::endl;
+						std::cerr << "WARNING:Unknown Difficulty: " << raw_difficulty << std::endl;
 						continue;
 					}
-					song.levels.emplace_back( ParseLevel(p.path().string() + "/" + difficulty_src, parsed_difficulty, song.info.beatsPerMinute));
+					song.levels.emplace_back(ParseLevel(p + "/" + difficulty_src, parsed_difficulty, song.info.beatsPerMinute));
 				}
 			}
-		} else {
-			continue;
 		}
-		
-		if (song.levels.size() > 0) {
-			out.emplace_back(std::move(song));
-		}
-	}
-	return out;
+		return song;
+	};
 }
 
 // Read Beat Saber File
-std::vector<BeatSaberSong> GetBeatSaberLocation() {
-	const std::string root_path = "D:/SteamLibrary/steamapps/common/Beat Saber/";
+std::string GetBeatSaberLocation(const std::string& root_path) {
 	const std::string data_path = root_path + "Beat Saber_Data/";
 	const std::string custom_levels = data_path + "CustomLevels";
 
@@ -206,8 +197,8 @@ std::vector<BeatSaberSong> GetBeatSaberLocation() {
 	}
 
 	if (found_songs) {
-		return ParseBeatSaberLevels(custom_levels);
+		return custom_levels;
+	} else {
+		return "";
 	}
-
-	return {};
 }
