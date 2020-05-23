@@ -30,6 +30,7 @@ public:
     void LoadLevel(const std::size_t& level_id);
 
     void SpawnCube(const Note& note) noexcept;
+    Colour get_note_colour(const Note& note) const noexcept;
 
     // game loop
     void ProcessInput(const double& dt) noexcept override;

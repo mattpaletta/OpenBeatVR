@@ -75,6 +75,16 @@ void OpenBeat::LoadLevel(const std::size_t& level_id) {
 
 void OpenBeat::ProcessInput(const double& dt) noexcept {}
 
+Colour OpenBeat::get_note_colour(const Note& note) const noexcept {
+	// TODO: ability to change colours on demand.
+	switch (note.hand) {
+	case NoteType::LEFT:
+		return Colour::red;
+	case NoteType::RIGHT:
+		return Colour::blue;
+	}
+};
+
 void OpenBeat::Update(const double& dt) noexcept {
 	bool is_playing = this->engine->getAudioEngine()->IsPlaying(this->engine->getResourceManager()->GetSound(this->currentSong.info.songName));
 	if (!is_playing && this->songOffset < 0.0) {
@@ -93,8 +103,8 @@ void OpenBeat::Update(const double& dt) noexcept {
 
 	constexpr double cube_speed = 1;
 	// Move all cubes towards the camera
-	for (auto& position : this->cubes.positions) {
-		position.z += (float) (cube_speed * dt);
+	for (auto& detail : this->cubes.details) {
+		detail.position.z += (float) (cube_speed * dt);
 	}
 
 	for (const auto& note : this->currentLevel.notes) {
@@ -106,19 +116,12 @@ void OpenBeat::Update(const double& dt) noexcept {
 			}
 		}
 	}
-	// For now, spawn cubes with set interval. (every 1000 frames)
-	/*
-	this->frame_count = ((this->frame_count + 1) % 50);
-	if (this->frame_count == 0) {
-		std::cout << "Spawning Cube" << std::endl;
-		this->SpawnCube();
-	}*/
 
 	// Despawn any that go past our camera location.
-	this->cubes.positions.erase(std::remove_if(this->cubes.positions.begin(), this->cubes.positions.end(), [](const glm::vec3& pos) {
+	this->cubes.details.erase(std::remove_if(this->cubes.details.begin(), this->cubes.details.end(), [](const CubeInst::CubeDetails detail) {
 		constexpr float margin = 20;
-		return pos.z < (-3.0f - margin);
-	}), this->cubes.positions.end());
+		return detail.position.z < (-3.0f - margin);
+	}), this->cubes.details.end());
 }
 
 void OpenBeat::Render() const noexcept {
@@ -138,10 +141,11 @@ void OpenBeat::SpawnCube(const Note& note) noexcept {
 
 	constexpr float horizontal_gap = 0.8;
 	// Allows for more horizontal lines, final game has 4-6
-	constexpr std::array<float, 3> lane_x = {
+	constexpr std::array<float, 4> lane_x = {
+		-2 * horizontal_gap,
 		-1 * horizontal_gap,
-		0.0,
-		1 * horizontal_gap
+		 1 * horizontal_gap,
+		 2 * horizontal_gap
 	};
 
 	if (note.lineIndex >= lane_x.size()) {
@@ -154,9 +158,13 @@ void OpenBeat::SpawnCube(const Note& note) noexcept {
 		return;
 	}
 
-	this->cubes.positions.emplace_back(
+	CubeInst::CubeDetails details;
+	
+	details.position = Position(
 		lane_x[note.lineIndex],
 		lane_y[note.lineLayer],
-		spawn_point_z
-	);
+		spawn_point_z);
+	details.colour = this->get_note_colour(note);
+	details.rotation = note.get_rotation();
+	this->cubes.details.emplace_back(std::move(details));
 }

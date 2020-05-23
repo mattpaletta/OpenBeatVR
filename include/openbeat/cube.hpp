@@ -1,4 +1,6 @@
 #pragma once
+#include <constants/colour.hpp>
+
 #include <engine/engine_fwd.hpp>
 #include <engine/3d_renderer.hpp>
 #include <engine/game_object_inst.hpp>
@@ -23,7 +25,7 @@ public:
     void DrawInstance(Renderer3D* renderer, const glm::mat4& model) const noexcept;
 };
 
-class CubeInst final : public GameObjectInst<Cube, Position3d> {
+class CubeInst final : public GameObjectInst<Cube> {
 public:
     CubeInst();
     ~CubeInst();
@@ -33,5 +35,13 @@ public:
     // We only need 1 `cube`, we draw them all through 'instances'
     Cube cube;
 
+    struct CubeDetails {
+         Position3d position;
+         float rotation;
+         Colour colour;
+    };
+
+    Position3d scale = glm::vec3(0.5, 0.5, 0.5);
+    std::vector<CubeDetails> details;
     void Draw(Renderer3D* renderer) const noexcept;
 };

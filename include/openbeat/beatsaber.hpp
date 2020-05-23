@@ -33,6 +33,31 @@ struct Note {
 	CutDirection direction;
 	Note(const double& _timeInSeconds, const double& _time, const int _lineIndex, const int _lineLayer, const NoteType& _hand, const CutDirection& _direction) : timeInSeconds(_timeInSeconds), time(_time), lineIndex(_lineIndex), lineLayer(_lineLayer), hand(_hand), direction(_direction) {}
 	~Note() = default;
+
+	constexpr float get_rotation() const noexcept {
+		switch (this->direction) {
+		case CutDirection::TOP:
+			return 0.f;
+		case CutDirection::BOTTOM:
+			return 180.f;
+		case CutDirection::LEFT:
+			return 270.f;
+		case CutDirection::RIGHT:
+			return 90.f;
+		case CutDirection::TOP_LEFT:
+			return 315.f;
+		case CutDirection::TOP_RIGHT:
+			return 45.f;
+		case CutDirection::BOTTOM_LEFT:
+			return 225.f;
+		case CutDirection::BOTTOM_RIGHT:
+			return 125.f;
+		case CutDirection::NONDIRECTION:
+			return 0.f;
+		default:
+			break;
+		}
+	}
 };
 
 struct BeatSaberLevel {

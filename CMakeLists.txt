@@ -9,6 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(GAME_MULTITHREADED OFF)
 
+
 # Make the engine follow the game.
 set(ENGINE_ENABLE_MULTITHREADED ${GAME_MULTITHREADED})
 set(ENGINE_ENABLE_AUDIO ON)
@@ -28,11 +29,22 @@ if (ENGINE_ENABLE_VR)
 #	file(COPY ${openvr_SOURCE_DIR}/bin/win64/openvr_api.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
+file(GLOB VERTEX_SHADERS shaders/*.vert)
+file(GLOB FRAGMENT_SHADERS shaders/*.frag)
+file(GLOB GEOMETRY_SHADERS shaders/*.geom)
+
+set(ALL_SHADERS ${VERTEX_SHADERS} ${FRAGMENT_SHADERS} ${GEOMETRY_SHADERS})
+
+# This will compile all our shaders, and create a new target `test_game_shaders` that depends on all tests.
+test_shaders_func("${ALL_SHADERS}" "test_game_shaders")
+
 file(GLOB SRC_FILES src/*.cpp)
 file(GLOB INC_FILES include/openbeat/*.hpp)
 
-add_executable(openbeat ${SRC_FILES} ${INC_FILES})
+add_executable(openbeat ${SRC_FILES} ${INC_FILES} ${ALL_SHADERS})
 target_include_directories(openbeat PUBLIC include)
 target_link_libraries(openbeat engine)
+
+add_dependencies(openbeat "test_game_shaders")
 
 target_compile_definitions(openbeat PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
