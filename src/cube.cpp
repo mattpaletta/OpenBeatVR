@@ -124,6 +124,7 @@ void CubeInst::Init(Engine* engine) {
     this->cube.Init(engine);
 
     // world space positions of our cubes
+    /*
     this->positions = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
@@ -135,7 +136,7 @@ void CubeInst::Init(Engine* engine) {
         glm::vec3(1.5f,  2.0f, -2.5f),
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    };*/
 
     // pass transformation matrices to the shader
     this->cube.shader.\
@@ -154,9 +155,10 @@ void CubeInst::Draw(Renderer3D* renderer) const noexcept {
         // calculate the model matrix for each object and pass it to shader before drawing
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, this->positions[i]);
+        model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
         // Update new position
-        const float angle = 20.0f * i;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        //const float angle = 20.0f * i;
+        //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         this->cube.DrawInstance(renderer, model);
     }
 }

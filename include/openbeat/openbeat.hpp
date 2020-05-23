@@ -4,18 +4,32 @@
 #include <constants/texture.hpp>
 #include <constants/shader.hpp>
 
+#include "beatsaber.hpp"
 #include "cube.hpp"
 
 class OpenBeat final : public Game {
 private:
-	std::string root_path;
+    double songOffset; // Offset since the beginning of the song.
+
+    std::string root_path;
     CubeInst cubes;
+    std::vector<BeatSaberSong> songs;
+
+    BeatSaberSong currentSong;
+    BeatSaberLevel currentLevel;
+
+    // Temp
+    std::size_t frame_count;
 
 public:
 	OpenBeat(const ScreenSize& size, const std::string& _root_path);
     ~OpenBeat();
 
 	void Init() override;
+
+    void LoadLevel(const std::size_t& level_id);
+
+    void SpawnCube(const Note& note) noexcept;
 
     // game loop
     void ProcessInput(const double& dt) noexcept override;

@@ -30,7 +30,7 @@ public:
 
     void Init(Engine* engine);
 
-    // We only need 1 `cube`
+    // We only need 1 `cube`, we draw them all through 'instances'
     Cube cube;
 
     void Draw(Renderer3D* renderer) const noexcept;
