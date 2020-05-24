@@ -22,6 +22,7 @@ find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/engine)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/sphere)
 
 if (ENGINE_ENABLE_VR)
 	get_property(openvr_SOURCE_DIR GLOBAL PROPERTY openvr_SOURCE_DIR)
@@ -43,7 +44,7 @@ file(GLOB INC_FILES include/openbeat/*.hpp)
 
 add_executable(openbeat ${SRC_FILES} ${INC_FILES} ${ALL_SHADERS})
 target_include_directories(openbeat PUBLIC include)
-target_link_libraries(openbeat engine)
+target_link_libraries(openbeat engine sphere)
 
 add_dependencies(openbeat "test_game_shaders")
 

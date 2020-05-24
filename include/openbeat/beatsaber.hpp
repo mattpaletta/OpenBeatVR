@@ -8,9 +8,17 @@
 #include <sstream>
 
 enum class Difficulty { EASY, NORMAL, HARD, EXPERT, EXPERT_PLUS };
-enum class NoteType { LEFT, RIGHT };
+enum class NoteType { LEFT, RIGHT, MINE };
 enum class CutDirection { BOTTOM, TOP, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, NONDIRECTION };
 enum class ObstacleType { WALL, CEILING };
+
+struct Event {
+	double timeInSeconds;
+	double time;
+
+	Event(const double& _timeInSeconds, const double& _time) : timeInSeconds(_timeInSeconds), time(_time) {}
+	~Event() = default;
+};
 
 struct Obstacle {
 	double timeInSeconds;
@@ -54,8 +62,6 @@ struct Note {
 			return 125.f;
 		case CutDirection::NONDIRECTION:
 			return 0.f;
-		default:
-			break;
 		}
 	}
 };
@@ -66,6 +72,53 @@ struct BeatSaberLevel {
 
 	std::vector<Note> notes;
 	std::vector<Obstacle> obstacles;
+	std::vector<Event> events;
+
+
+	std::size_t get_num_mines() const {
+		std::size_t count = 0;
+		for (const auto& note : this->notes) {
+			if (note.hand == NoteType::MINE) {
+				count += 1;
+			}
+		}
+		return count;
+	}
+
+	std::size_t get_num_blocks() const {
+		return this->notes.size() - this->get_num_mines();
+	}
+
+	std::size_t get_num_walls() const {
+		return this->obstacles.size();
+	}
+
+	std::size_t get_num_events() const {
+		return this->events.size();
+	}
+
+	std::string description() const {
+		std::function<std::string(const Difficulty& diff)> difficulty_description = [](const Difficulty& diff) {
+			switch (diff) {
+			case Difficulty::EASY:
+				return "Easy";
+			case Difficulty::NORMAL:
+				return "Normal";
+			case Difficulty::HARD:
+				return "Hard";
+			case Difficulty::EXPERT:
+				return "Expert";
+			case Difficulty::EXPERT_PLUS:
+				return "Expert Plus";
+			}
+		};
+
+		return "Difficulty: " + difficulty_description(this->difficulty) + "\n" +
+			"Notes: " + std::to_string(this->get_num_blocks()) + "\n" +
+			"Mines: " + std::to_string(this->get_num_mines()) + "\n" +
+			"Walls: " + std::to_string(this->get_num_walls()) + "\n" +
+			"Events: " + std::to_string(this->get_num_events()) + "\n";
+	}
 };
 
 struct BeatSaberInfo {

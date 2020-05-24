@@ -12,7 +12,10 @@ BeatSaberLevel ParseLevel(const std::string& levelPath, const Difficulty& diffic
 
 	// Notes
 	for (const auto& [_, note] : level["_notes"].items()) {
-		const NoteType hand = (NoteType)note["_type"].get<int>();
+		const int note_type_raw = note["_type"].get<int>();
+		// Anything other than 0 or 1 is a mine.
+		const NoteType hand = note_type_raw > 1 ? NoteType::MINE : (NoteType) note_type_raw;
+
 		const CutDirection direction = (CutDirection)note["_cutDirection"].get<int>();
 		const int lineIndex = note["_lineIndex"].get<int>();
 		const int lineLayer = note["_lineLayer"].get<int>();
@@ -21,14 +24,19 @@ BeatSaberLevel ParseLevel(const std::string& levelPath, const Difficulty& diffic
 
 		parsed_level.notes.emplace_back(timeInSeconds, time, lineIndex, lineLayer, hand, direction);
 	}
-	// Events
-	// for (const auto& [_, event] : level["_events"]) {
 
-	// }
+	// Events
+	for (const auto& [_, event] : level["_events"].items()) {
+		const double time = event["_time"].get<double>();
+		const double timeInSeconds = (time / bpm) * 60;
+		const int type = event["_type"].get<int>();
+		const int value = event["_value"].get<int>();
+		parsed_level.events.emplace_back(timeInSeconds, time);
+	}
 
 	// Obstacles
 	for (const auto& [_, obstacle] : level["_obstacles"].items()) {
-		const ObstacleType type = (ObstacleType)obstacle["_type"].get<int>();
+		const ObstacleType type = (ObstacleType) obstacle["_type"].get<int>();
 		const double duration = obstacle["_duration"].get<double>();
 		const int lineIndex = obstacle["_lineIndex"].get<int>();
 		const double time = obstacle["_time"].get<double>();

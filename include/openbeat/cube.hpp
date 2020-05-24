@@ -7,7 +7,7 @@
 
 class CubeInst;
 
-class Cube : public GameObject {
+class Cube final: public GameObject {
 private:
     friend CubeInst;
 
@@ -41,7 +41,7 @@ public:
          Colour colour;
     };
 
-    Position3d scale = glm::vec3(0.5, 0.5, 0.5);
+    Position3d scale = glm::vec3(1.0);
     std::vector<CubeDetails> details;
     void Draw(Renderer3D* renderer) const noexcept;
 };

@@ -8,13 +8,10 @@
 
 Cube::Cube() {}
 
-Shader& get_cube_shader(Engine* engine) {
-    return engine->getResourceManager()->GetShader("cube");
-}
-
 void Cube::Init(Engine* engine) {
     // set up vertex data (and buffer(s)) and configure vertex attributes of cube
     constexpr float vertices[] = {
+        // Vertex             // Texture
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -77,6 +74,8 @@ void Cube::Init(Engine* engine) {
     glEnableVertexAttribArray(1);
     glCheckError();
 
+    glBindVertexArray(0);
+
     this->texture = engine->getResourceManager()->LoadTexture("../textures/container.jpg", false, "container");
     this->shader = engine->getResourceManager()->LoadShader("../shaders/cube_shader.vert", "../shaders/cube_shader.frag", "", "cube");
 
@@ -136,6 +135,8 @@ void CubeInst::Draw(Renderer3D* renderer) const noexcept {
     this->cube.shader.use();
     glCheckError();
 
+    Colour last_colour = Colour::black;
+    glBindVertexArray(this->cube.VAO);
     for (const auto& cube : this->details) {
         // calculate the model matrix for each object and pass it to shader before drawing
         glm::mat4 model = glm::mat4(1.0f);
@@ -145,7 +146,12 @@ void CubeInst::Draw(Renderer3D* renderer) const noexcept {
         // Rotate around the z-axis by the rotation amount.
         model = glm::rotate(model, cube.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 
-        // TODO: Set Colour;
+        if (cube.colour != last_colour) {
+            // Only send on change
+            this->cube.shader.setVec3("cubeColour", cube.colour.to_vec3());
+            last_colour = cube.colour;
+        }
         this->cube.DrawInstance(renderer, model);
     }
+    glBindVertexArray(0);
 }
