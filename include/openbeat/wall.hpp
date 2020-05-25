@@ -3,6 +3,9 @@
 #include <engine/3d_renderer.hpp>
 #include <engine/game_object_inst.hpp>
 
+#include <constants/shader.hpp>
+#include <constants/texture.hpp>
+
 class WallInst;
 
 class Wall final : public GameObject {
@@ -33,9 +36,10 @@ public:
 	Wall wall;
 
 	struct WallDetails {
+		float half_depth;
+
 		Position3d position;
-		float width;
-		float height;
+		glm::vec3 size;
 		bool is_ceiling;
 	};
 

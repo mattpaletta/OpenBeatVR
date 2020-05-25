@@ -74,6 +74,8 @@ void Cube::Init(Engine* engine) {
     glEnableVertexAttribArray(1);
     glCheckError();
 
+    // TODO: Make these instanced, separate VAO per-cube
+
     glBindVertexArray(0);
 
     this->texture = engine->getResourceManager()->LoadTexture("../textures/container.jpg", false, "container");
@@ -123,7 +125,7 @@ void CubeInst::Init(Engine* engine) {
     this->cube.Init(engine);
 
     // pass transformation matrices to the shader
-    this->cube.shader.\
+    this->cube.shader.use().\
         setMat4("projection", engine->get3DRenderer()->getProjection()).
         setMat4("view", engine->get3DRenderer()->getView());
     glCheckError();

@@ -19,7 +19,7 @@ float getVerticalPosition(const float& lineLayer) {
 
 // Testing helpers
 bool find_test_level(const BeatSaberLevel& level) {
-	return level.get_num_mines() > 10 && 
+	return // level.get_num_mines() > 10 && 
 		   level.get_num_walls() > 0;
 };
 
@@ -115,6 +115,7 @@ void OpenBeat::LoadLevel(const std::size_t& level_id) {
 	this->speed = beatSpeed;
 	this->cubes.scale = glm::vec3(this->size);
 	this->mines.scale = glm::vec3(this->size);
+	this->walls.scale = glm::vec3(this->size);
 }
 
 void OpenBeat::ProcessInput(const double& dt) noexcept {}
@@ -206,6 +207,21 @@ void OpenBeat::Update(const double& dt) noexcept {
 		update_position(&detail.position, dt);
 	}
 
+	// Walls move slightly differently
+	for (auto& detail : this->walls.details) {
+		if (detail.position.z < this->anticipationPosition - detail.half_depth) {
+			const auto newPositionZ = detail.position.z + BEAT_WARMUP_SPEED * dt; //(dt / 1000);
+			// Warm up / warp in.
+			if (newPositionZ < this->anticipationPosition - detail.half_depth) {
+				detail.position.z = newPositionZ;
+			} else {
+				detail.position.z = this->anticipationPosition - detail.half_depth;
+			}
+		} else {
+			detail.position.z += this->speed * dt; // (dt / 1000);
+		}
+	}
+
 	// Despawn any that go past our camera location.
 	// Cubes and mines get despawned the same way.
 	this->cubes.details.erase(std::remove_if(this->cubes.details.begin(), this->cubes.details.end(), [this](const CubeInst::CubeDetails detail) {
@@ -214,6 +230,12 @@ void OpenBeat::Update(const double& dt) noexcept {
 	this->mines.details.erase(std::remove_if(this->mines.details.begin(), this->mines.details.end(), [this](const MineInst::MineDetails detail) {
 		return detail.position.z > (-this->swordOffset);
 	}), this->mines.details.end());
+
+	// Wait a little longer to despawn walls
+	this->walls.details.erase(std::remove_if(this->walls.details.begin(), this->walls.details.end(), [this](const WallInst::WallDetails detail) {
+		constexpr float maxZ = 10;
+		return detail.position.z > (this->swordOffset + maxZ + detail.half_depth);
+	}), this->walls.details.end());
 }
 
 void OpenBeat::Render() const noexcept {
@@ -249,5 +271,39 @@ void OpenBeat::SpawnCube(const Note& note) noexcept {
 	this->cubes.details.emplace_back(std::move(details));
 }
 
-void OpenBeat::SpawnWall(const Obstacle& obstacle) noexcept {}
+void OpenBeat::SpawnWall(const Obstacle& obstacle) noexcept {
+	const float RAISE_Y_OFFSET = 0.15;
+	const float default_width = 1;
+	const float default_warmup_position = 0;
+	const float default_horizontal_position = 0;
+	const float default_height = 1.3;
+	const float CEILING_THICKNESS = 1.5;
+	const float CEILING_HEIGHT = 1.4 + CEILING_THICKNESS / 2;
+	const float CEILING_WIDTH = 4;
+
+	WallInst::WallDetails details;
+	details.half_depth = obstacle.duration * this->speed / 2;
+
+	if (obstacle.type == ObstacleType::CEILING) {
+		details.position = glm::vec3(
+			getHorizontalPosition(obstacle.lineIndex) + default_width / 2 - 0.25,
+			CEILING_HEIGHT,
+			this->beatAnticipationTime + this->warmupPosition - details.half_depth);
+		details.size = glm::vec3(
+			default_width,
+			CEILING_THICKNESS,
+			obstacle.duration * this->speed);
+	} else {
+		details.position = glm::vec3(
+			getHorizontalPosition(obstacle.lineIndex) + default_width / 2 - 0.25,
+			default_height + RAISE_Y_OFFSET,
+			this->beatAnticipationTime + this->warmupPosition - details.half_depth);
+		details.size = glm::vec3(
+			default_width,
+			2.5,
+			obstacle.duration * this->speed);
+	}
+
+	this->walls.details.emplace_back(std::move(details));
+}
 void OpenBeat::SpawnEvent(const Event& event) noexcept {}
