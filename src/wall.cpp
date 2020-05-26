@@ -82,7 +82,7 @@ void Wall::Init(Engine* engine) {
 
     glBindVertexArray(0);
 
-    this->shader = engine->getResourceManager()->LoadShader("../shaders/wall_shader.vert", "../shaders/wall_shader.frag", "", "wall");
+    this->shader = engine->getResourceManager()->LoadShader("../shaders/wall_shader.vert", "../shaders/wall_shader.frag", "wall");
 
     // Let the resource manager we are storing it ourselves
     engine->getResourceManager()->SetShaderAsSelfUsed("wall");

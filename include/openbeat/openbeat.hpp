@@ -17,9 +17,9 @@ constexpr float BEAT_ANTICIPATION_POSITION = 0;
 class OpenBeat final : public Game {
 private:
     // Offset of the player.
-    float swordOffset = 1.5;
+    float swordOffset = 1.5f;
     float beatSpeed;
-    const float beatAnticipationTime = 1.1;
+    const float beatAnticipationTime = 1.1f;
     float anticipationPosition;
     const float warmupPosition = -BEAT_WARMUP_TIME * BEAT_WARMUP_SPEED;
     float speed;

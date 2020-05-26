@@ -79,7 +79,7 @@ void Cube::Init(Engine* engine) {
     glBindVertexArray(0);
 
     this->texture = engine->getResourceManager()->LoadTexture("../textures/container.jpg", false, "container");
-    this->shader = engine->getResourceManager()->LoadShader("../shaders/cube_shader.vert", "../shaders/cube_shader.frag", "", "cube");
+    this->shader = engine->getResourceManager()->LoadShader("../shaders/cube_shader.vert", "../shaders/cube_shader.frag", "cube");
 
     // Let the resource manager we are storing it ourselves
     engine->getResourceManager()->SetShaderAsSelfUsed("cube");

@@ -37,7 +37,7 @@ BeatSaberLevel ParseLevel(const std::string& levelPath, const Difficulty& diffic
 	// Obstacles
 	for (const auto& [_, obstacle] : level["_obstacles"].items()) {
 		const ObstacleType type = (ObstacleType) obstacle["_type"].get<int>();
-		const double duration = obstacle["_duration"].get<double>();
+		const float duration = obstacle["_duration"].get<float>();
 		const int lineIndex = obstacle["_lineIndex"].get<int>();
 		const double time = obstacle["_time"].get<double>();
 		const double timeInSeconds = (time / bpm) * 60;

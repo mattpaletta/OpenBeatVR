@@ -24,11 +24,11 @@ struct Obstacle {
 	double timeInSeconds;
 	double time;
 	int lineIndex;
-	double duration;
+	float duration;
 	ObstacleType type;
 	double width;
 
-	Obstacle(const double& _timeInSeconds, const double& _time, const int _lineIndex, const double& _duration, const ObstacleType& _type, const double& _width) : timeInSeconds(_timeInSeconds), time(_time), lineIndex(_lineIndex), duration(_duration), type(_type), width(_width) {}
+	Obstacle(const double& _timeInSeconds, const double& _time, const int _lineIndex, const float& _duration, const ObstacleType& _type, const double& _width) : timeInSeconds(_timeInSeconds), time(_time), lineIndex(_lineIndex), duration(_duration), type(_type), width(_width) {}
 	~Obstacle() = default;
 };
 
@@ -63,6 +63,9 @@ struct Note {
 		case CutDirection::NONDIRECTION:
 			return 0.f;
 		}
+
+
+		return 0.f;
 	}
 };
 
@@ -111,6 +114,8 @@ struct BeatSaberLevel {
 			case Difficulty::EXPERT_PLUS:
 				return "Expert Plus";
 			}
+
+			return "Unknown Difficulty";
 		};
 
 		return "Difficulty: " + difficulty_description(this->difficulty) + "\n" +

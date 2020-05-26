@@ -7,7 +7,7 @@
 #include <engine/engine.hpp>
 
 // Radius 0.5, 36 sectors (horizontal), 18 stacks (vertical), smooth=true
-Mine::Mine() : sphere(0.2, 36, 18, false) {}
+Mine::Mine() : sphere(0.2f, 36, 18, false) {}
 
 Mine::~Mine() {
 	glDeleteVertexArrays(1, &this->VAO);
@@ -15,7 +15,7 @@ Mine::~Mine() {
 }
 
 void Mine::Init(Engine* engine) {
-	this->shader = engine->getResourceManager()->LoadShader("../shaders/mine_shader.vert", "../shaders/mine_shader.frag", "", "mine");
+	this->shader = engine->getResourceManager()->LoadShader("../shaders/mine_shader.vert", "../shaders/mine_shader.frag", "mine");
 	this->shader.use();
 
 	glGenVertexArrays(1, &this->VAO);

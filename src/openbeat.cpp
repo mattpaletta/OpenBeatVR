@@ -9,12 +9,12 @@
 
 #include <future>
 
-float getHorizontalPosition(const float& lineIndex) {
-	return lineIndex / 3 * 1.5 - 0.75;
+float getHorizontalPosition(const int lineIndex) {
+	return lineIndex / 3 * 1.5f - 0.75f;
 }
 
-float getVerticalPosition(const float& lineLayer) {
-	return lineLayer / 2 + 0.7;
+float getVerticalPosition(const int lineLayer) {
+	return lineLayer / 2.f + 0.7f;
 }
 
 // Testing helpers
@@ -103,14 +103,14 @@ void OpenBeat::LoadLevel(const std::size_t& level_id) {
 	const std::string songName = this->currentSong.info.songName;
 	this->engine->getAudioEngine()->LoadSound(
 		this->engine->getResourceManager()->RegisterSound(songFilename, songName),
-		// Not 3D, not Looping, not Streaming.
-		false, false, false);
+		// not Looping.
+		false);
 	this->engine->getAudioEngine()->Play(this->engine->getResourceManager()->GetSound(this->currentSong.info.songName));
 	
 	// Debug engine
 
 	this->songOffset = -1.0f;
-	this->beatSpeed = (int) this->currentLevel.difficulty;
+	this->beatSpeed = static_cast<float>(this->currentLevel.difficulty);
 	this->anticipationPosition = -this->beatAnticipationTime * beatSpeed - this->swordOffset;
 	this->speed = beatSpeed;
 	this->cubes.scale = glm::vec3(this->size);
@@ -130,6 +130,8 @@ Colour OpenBeat::get_note_colour(const Note& note) const noexcept {
 	case NoteType::MINE:
 		return Colour::black;
 	}
+
+	return Colour::black;
 };
 
 void OpenBeat::Update(const double& dt) noexcept {
@@ -183,9 +185,9 @@ void OpenBeat::Update(const double& dt) noexcept {
 	}
 
 	// Helper function to determine new location of mine or cube based on DT.
-	auto update_position = [this](Position* position, const double& dt) {
+	auto update_position = [this](Position* position, const float& dt) {
 		if (position->z < this->anticipationPosition) {
-			const auto newPositionZ = position->z + BEAT_WARMUP_SPEED * dt; //(dt / 1000);
+			const float newPositionZ = position->z + BEAT_WARMUP_SPEED * dt; //(dt / 1000);
 			// Warm up / warp in.
 			if (newPositionZ < this->anticipationPosition) {
 				position->z = newPositionZ;
@@ -199,18 +201,18 @@ void OpenBeat::Update(const double& dt) noexcept {
 
 	// Move all cubes towards the camera
 	for (auto& detail : this->cubes.details) {
-		update_position(&detail.position, dt);
+		update_position(&detail.position, static_cast<float>(dt));
 	}
 
 	// Mines move the same way
 	for (auto& detail : this->mines.details) {
-		update_position(&detail.position, dt);
+		update_position(&detail.position, static_cast<float>(dt));
 	}
 
 	// Walls move slightly differently
 	for (auto& detail : this->walls.details) {
 		if (detail.position.z < this->anticipationPosition - detail.half_depth) {
-			const auto newPositionZ = detail.position.z + BEAT_WARMUP_SPEED * dt; //(dt / 1000);
+			const auto newPositionZ = detail.position.z + BEAT_WARMUP_SPEED * static_cast<float>(dt); //(dt / 1000);
 			// Warm up / warp in.
 			if (newPositionZ < this->anticipationPosition - detail.half_depth) {
 				detail.position.z = newPositionZ;
@@ -218,7 +220,7 @@ void OpenBeat::Update(const double& dt) noexcept {
 				detail.position.z = this->anticipationPosition - detail.half_depth;
 			}
 		} else {
-			detail.position.z += this->speed * dt; // (dt / 1000);
+			detail.position.z += this->speed * static_cast<float>(dt); // (dt / 1000);
 		}
 	}
 
@@ -272,17 +274,17 @@ void OpenBeat::SpawnCube(const Note& note) noexcept {
 }
 
 void OpenBeat::SpawnWall(const Obstacle& obstacle) noexcept {
-	const float RAISE_Y_OFFSET = 0.15;
-	const float default_width = 1;
+	const float RAISE_Y_OFFSET = 0.15f;
+	const float default_width = 1.f;
 	const float default_warmup_position = 0;
 	const float default_horizontal_position = 0;
-	const float default_height = 1.3;
-	const float CEILING_THICKNESS = 1.5;
-	const float CEILING_HEIGHT = 1.4 + CEILING_THICKNESS / 2;
+	const float default_height = 1.3f;
+	const float CEILING_THICKNESS = 1.5f;
+	const float CEILING_HEIGHT = 1.4f + CEILING_THICKNESS / 2;
 	const float CEILING_WIDTH = 4;
 
 	WallInst::WallDetails details;
-	details.half_depth = obstacle.duration * this->speed / 2;
+	details.half_depth = obstacle.duration * this->speed / 2.f;
 
 	if (obstacle.type == ObstacleType::CEILING) {
 		details.position = glm::vec3(
