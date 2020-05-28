@@ -9,6 +9,13 @@
 Cube::Cube() {}
 
 void Cube::Init(Engine* engine) {
+    this->model.loadModel(engine, "../models/cube.obj");
+    for (std::size_t i = 0; i < this->model.numMeshes(); ++i) {
+        auto& mesh = this->model.getMesh(i);
+        mesh.autoCreateShader({mesh.fragmentOutColour + " = vec4(1.0, 1.0, 1.0, 1.0);"});
+    }
+    this->model.Init();
+    /*
     // set up vertex data (and buffer(s)) and configure vertex attributes of cube
     constexpr float vertices[] = {
         // Vertex             // Texture
@@ -78,7 +85,7 @@ void Cube::Init(Engine* engine) {
 
     glBindVertexArray(0);
 
-    this->texture = engine->getResourceManager()->LoadTexture("../textures/container.jpg", false, "container");
+    this->texture = engine->getResourceManager()->LoadTexture("../textures/container.jpg", "container");
     this->shader = engine->getResourceManager()->LoadShader("../shaders/cube_shader.vert", "../shaders/cube_shader.frag", "cube");
 
     // Let the resource manager we are storing it ourselves
@@ -89,14 +96,17 @@ void Cube::Init(Engine* engine) {
     this->shader.\
         use().\
         setInt("texture1", 0);
+    */
+
 }
 
 Cube::~Cube() {
-    glDeleteVertexArrays(1, &this->VAO);
-    glDeleteBuffers(1, &this->VBO);
+    //glDeleteVertexArrays(1, &this->VAO);
+    //glDeleteBuffers(1, &this->VBO);
 }
 
 void Cube::Draw(Renderer3D* renderer) const noexcept {
+    /*
     glActiveTexture(GL_TEXTURE0);
     this->texture.Bind();
     this->shader.use();
@@ -110,12 +120,15 @@ void Cube::Draw(Renderer3D* renderer) const noexcept {
     
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glCheckError();
+    */
+   
 }
 
 void Cube::DrawInstance(Renderer3D* renderer, const glm::mat4& model) const noexcept {
-    this->shader.setMat4("model", model);
+    /*this->shader.setMat4("model", model);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glCheckError();
+    glCheckError();*/
+    this->model.Draw(model);
 }
 
 CubeInst::CubeInst() {}
@@ -125,20 +138,23 @@ void CubeInst::Init(Engine* engine) {
     this->cube.Init(engine);
 
     // pass transformation matrices to the shader
-    this->cube.shader.use().\
+/*    this->cube.shader.use().\
         setMat4("projection", engine->get3DRenderer()->getProjection()).
-        setMat4("view", engine->get3DRenderer()->getView());
+        setMat4("view", engine->get3DRenderer()->getView());*/
+    this->cube.model.UpdatePerspective(engine->get3DRenderer());
     glCheckError();
 }
 
 void CubeInst::Draw(Renderer3D* renderer) const noexcept {
+    /*
     glActiveTexture(GL_TEXTURE0);
     this->cube.texture.Bind();
     this->cube.shader.use();
     glCheckError();
+    */
 
     Colour last_colour = Colour::black;
-    glBindVertexArray(this->cube.VAO);
+    //glBindVertexArray(this->cube.VAO);
     for (const auto& cube : this->details) {
         // calculate the model matrix for each object and pass it to shader before drawing
         glm::mat4 model = glm::mat4(1.0f);
@@ -150,10 +166,10 @@ void CubeInst::Draw(Renderer3D* renderer) const noexcept {
 
         if (cube.colour != last_colour) {
             // Only send on change
-            this->cube.shader.setVec3("cubeColour", cube.colour.to_vec3());
+            //this->cube.shader.setVec3("cubeColour", cube.colour.to_vec3());
             last_colour = cube.colour;
         }
         this->cube.DrawInstance(renderer, model);
     }
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
 }

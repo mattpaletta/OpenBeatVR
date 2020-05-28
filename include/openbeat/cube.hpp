@@ -4,6 +4,7 @@
 #include <engine/engine_fwd.hpp>
 #include <engine/3d_renderer.hpp>
 #include <engine/game_object_inst.hpp>
+#include <engine/model.hpp>
 
 class CubeInst;
 
@@ -11,11 +12,13 @@ class Cube final: public GameObject {
 private:
     friend CubeInst;
 
-    unsigned int VBO;
-    unsigned int VAO;
+    //unsigned int VBO;
+    //unsigned int VAO;
 
-    mutable Texture2D texture;
-    mutable Shader shader;
+    //mutable Texture2D texture;
+    //mutable Shader shader;
+    Model model;
+
 public:
     Cube();
     ~Cube();
