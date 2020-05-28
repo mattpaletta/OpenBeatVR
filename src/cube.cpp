@@ -12,7 +12,11 @@ void Cube::Init(Engine* engine) {
     this->model.loadModel(engine, "../models/cube.obj");
     for (std::size_t i = 0; i < this->model.numMeshes(); ++i) {
         auto& mesh = this->model.getMesh(i);
-        mesh.autoCreateShader({mesh.fragmentOutColour + " = vec4(1.0, 1.0, 1.0, 1.0);"});
+        mesh.autoCreateShader({mesh.fragmentOutColour + " = texture(texture_diffuse1, TexCoords);"});
+        std::cout << "Num Diffuse: " << mesh.getNumDiffuse() << "\n" <<
+            "Num Specular: " << mesh.getNumSpecular() << "\n" <<
+            "Num Normal: " << mesh.getNumNormal() << "\n" <<
+            "Num Height: " << mesh.getNumHeight() << std::endl;
     }
     this->model.Init();
     /*
@@ -136,7 +140,6 @@ CubeInst::~CubeInst() {}
 
 void CubeInst::Init(Engine* engine) {
     this->cube.Init(engine);
-
     // pass transformation matrices to the shader
 /*    this->cube.shader.use().\
         setMat4("projection", engine->get3DRenderer()->getProjection()).
